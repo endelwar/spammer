@@ -1,6 +1,6 @@
 {
     "name": "endelwar/spammer",
-    "description": "Send randomly generated email to an Email Server for testing",
+    "description": "Send randomly generated email to a SMTP server for testing",
     "license": "MIT",
     "authors": [
         {
