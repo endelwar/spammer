@@ -37,7 +37,7 @@ class SpammerCommand extends Command
             throw new \InvalidArgumentException('server option is not a valid IP');
         }
         $smtpServerPort = $input->getOption('port');
-        if ( !is_numeric($smtpServerPort) || ($smtpServerPort < 0 || $smtpServerPort > 65535)) {
+        if (!is_numeric($smtpServerPort) || ($smtpServerPort < 0 || $smtpServerPort > 65535)) {
             throw new \InvalidArgumentException('server port must be a number between 0 and 65536');
         }
 
@@ -52,21 +52,18 @@ class SpammerCommand extends Command
             $style = new OutputFormatterStyle('green', null, array('bold'));
             $output->getFormatter()->setStyle('bold', $style);
             $output->writeln('<comment>Spammer starting up</comment>');
-            $output->write('<info>Sending </info>');
-            $output->write('<bold>' . $count . '</bold>');
-            $output->write('<info> email to server </info>');
-            $output->write('<bold>' . $smtpServerIp . '</bold>');
-            $output->write('<info>:</info>');
-            $output->write('<bold>' . $smtpServerPort . '</bold>');
-            $output->writeln('<info> using locale '.$locale.'</info>');
+            $output->write(
+                '<info>Sending </info><bold>' . $count .
+                '</bold><info> email to server </info><bold>' . $smtpServerIp .
+                '</bold><info>:</info><bold>' . $smtpServerPort . '</bold>'
+            );
+            $output->writeln('<info> using locale </info><bold>' . $locale . '</bold>');
 
             $faker = Faker\Factory::create($locale);
             $faker->seed(mt_rand());
 
-            $transport = \Swift_SmtpTransport::newInstance($smtpServerIp, $smtpServerPort);
+            $transport = \Swift_SmtpTransport::newInstance()->setHost($smtpServerIp)->setPort($smtpServerPort);
             $mailer = \Swift_Mailer::newInstance($transport);
-            $logger = new \Swift_Plugins_Loggers_ArrayLogger();
-            $mailer->registerPlugin(new \Swift_Plugins_LoggerPlugin($logger));
 
             $numSent = 0;
             for ($i = 0; $i < $count; $i++) {
@@ -79,11 +76,11 @@ class SpammerCommand extends Command
                     ->setBody($emaiText, 'text/plain')
                     ->addPart('<p>' . $emaiText . '</p>', 'text/html');
 
-                $numSent += $mailer->send($message);
-                if (!$numSent) {
-                    //email not sent
-                    $email_log[$i]['raw'] = $logger->dump();
-                    $logger->clear();
+                try {
+                    $numSent += $mailer->send($message);
+                } catch (\Swift_TransportException $swe) {
+                    $output->writeLn('<error>' . $swe->getMessage() . '</error>');
+                    break;
                 }
             }
 

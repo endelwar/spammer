@@ -189,4 +189,17 @@ class SpammerTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('InvalidArgumentException', $output);
         $this->assertContains('server port must be a number between 0 and 65536', $output);
     }
+
+    public function testMailerError()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-p' => '2501',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains('Connection refused', $output);
+        $this->assertContains('Connection could not be established with host 127.0.0.1', $output);
+    }
 }
