@@ -111,4 +111,82 @@ class SpammerTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('Sending 1 email to server 127.0.0.1:2500 using locale pl_PL', $output);
         $this->assertContains('Sent 1 messages', $output);
     }
+
+    public function testWrongServerOptionLiteral()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-s' => 'localhost',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains('server option is not a valid IP', $output);
+    }
+
+    public function testWrongServerOptionIP()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-s' => '256.289.100.587',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains('server option is not a valid IP', $output);
+    }
+
+    public function testWrongCountOption()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-c' => 'Lorem',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains('count must be equal or greater than 1 (you want to send email, right?)', $output);
+    }
+
+    public function testWrongPortOptionTooLow()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-p' => '-123',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains('server port must be a number between 0 and 65536', $output);
+    }
+
+    public function testWrongPortOptionTooHigh()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-p' => '66000',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains('server port must be a number between 0 and 65536', $output);
+    }
+
+    public function testWrongPortOptionNaN()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-p' => 'Lorem',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains('server port must be a number between 0 and 65536', $output);
+    }
 }

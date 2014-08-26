@@ -36,14 +36,14 @@ class SpammerCommand extends Command
         if (!filter_var($smtpServerIp, FILTER_VALIDATE_IP)) {
             throw new \InvalidArgumentException('server option is not a valid IP');
         }
-        $smtpServerPort = intval($input->getOption('port'));
-        if ($smtpServerPort < 0 || $smtpServerPort > 65535) {
+        $smtpServerPort = $input->getOption('port');
+        if ( !is_numeric($smtpServerPort) || ($smtpServerPort < 0 || $smtpServerPort > 65535)) {
             throw new \InvalidArgumentException('server port must be a number between 0 and 65536');
         }
 
         $count = intval($input->getOption('count'));
         if ($count < 1) {
-            throw new \InvalidArgumentException('count must be equal or greater of 1 (you want to send email, right?)');
+            throw new \InvalidArgumentException('count must be equal or greater than 1 (you want to send email, right?)');
         }
 
         $locale = $input->getOption('locale');
