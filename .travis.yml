@@ -19,7 +19,7 @@ before_script:
     - composer self-update
     - composer install --dev
     - sudo service postfix stop
-    - smtp-sink -d "%d.%H.%M.%S" localhost:2500 1000 &
+    - smtp-sink -d "%d.%H.%M.%S" 127.0.0.1:2500 1000 &
     - mkdir -p build/logs
 
 after_script:
