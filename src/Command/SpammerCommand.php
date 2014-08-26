@@ -33,7 +33,7 @@ class SpammerCommand extends Command
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return int|null
+     * @return integer
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -87,19 +87,19 @@ class SpammerCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return mixed
+     * @return array
      * @throws \InvalidArgumentException
      */
     protected function validateInput(InputInterface $input)
     {
+        $validInput = array();
         $validInput['smtpServerIp'] = $input->getOption('server');
         if (!filter_var($validInput['smtpServerIp'], FILTER_VALIDATE_IP)) {
             throw new \InvalidArgumentException('server option is not a valid IP');
         }
         $validInput['smtpServerPort'] = $input->getOption('port');
-        if (!is_numeric(
-                $validInput['smtpServerPort']
-            ) || ($validInput['smtpServerPort'] < 0 || $validInput['smtpServerPort'] > 65535)
+        if (!is_numeric($validInput['smtpServerPort']) ||
+            ($validInput['smtpServerPort'] < 0 || $validInput['smtpServerPort'] > 65535)
         ) {
             throw new \InvalidArgumentException('server port must be a number between 0 and 65536');
         }
