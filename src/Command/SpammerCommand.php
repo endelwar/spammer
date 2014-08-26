@@ -80,7 +80,7 @@ class SpammerCommand extends Command
                     $numSent += $mailer->send($message);
                 } catch (\Swift_TransportException $swe) {
                     $output->writeLn('<error>' . $swe->getMessage() . '</error>');
-                    break;
+                    return 1;
                 }
             }
 
