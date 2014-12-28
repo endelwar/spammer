@@ -1,0 +1,33 @@
+build_image: shippableimages/ubuntu1404_php
+
+cache: true
+
+language: php
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  - 5.6
+
+before_install:
+  # Activate the required php version
+  - export PATH=$HOME/.phpenv/bin:$HOME/.phpenv/extensions:$PATH && eval "$(phpenv init -)"
+  - phpenv global $SHIPPABLE_PHP_VERSION
+  - php --version
+  - sudo apt-get update -qq
+  - sudo apt-get install -y postfix
+  - sudo apt-get autoremove -y
+  - sudo apt-get autoclean
+
+before_script:
+  - sudo service postfix stop
+  - smtp-sink -d "%d.%H.%M.%S" 127.0.0.1:2500 1000 &
+  - mkdir -p build/logs
+  - mkdir -p shippable/codecoverage
+  - mkdir -p shippable/testresults
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
