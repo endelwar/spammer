@@ -22,10 +22,16 @@ before_install:
 
 before_script:
   - sudo service postfix stop
-  - smtp-sink -d "%d.%H.%M.%S" 127.0.0.1:2500 1000 &
+  - mkdir tmp
+  - smtp-sink -u postfix -d "./tmp/%Y%m%d%H/%M." 127.0.0.1:2500 1000 &
   - mkdir -p build/logs
   - mkdir -p shippable/codecoverage
   - mkdir -p shippable/testresults
+  - composer self-update
+  - composer install --dev
+
+script:
+  - vendor/bin/phpunit -c phpunit.xml.dist
 
 notifications:
   email:
