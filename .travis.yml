@@ -13,6 +13,7 @@ matrix:
 
 before_install:
     - sudo apt-get update -qq
+    - export DEBIAN_FRONTEND=noninteractive
     - sudo apt-get install -y -qq postfix
 
 before_script:
@@ -25,5 +26,5 @@ before_script:
 after_script:
     - wget https://scrutinizer-ci.com/ocular.phar
     - php ocular.phar code-coverage:upload --format=php-clover build/logs/clover.xml
-    - "vendor/bin/test-reporter --stdout > codeclimate.json"
+    - "CODECLIMATE_REPO_TOKEN=a757d1980821cc8b324859a9755a1c8524c1e00409a8fa00a67acd41a649cf25 ./vendor/bin/test-reporter --stdout > codeclimate.json"
     - "curl -X POST -d @codeclimate.json -H 'Content-Type: application/json' -H 'User-Agent: Code Climate (PHP Test Reporter v0.1.1)' https://codeclimate.com/test_reports"

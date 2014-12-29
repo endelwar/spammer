@@ -16,8 +16,9 @@ before_install:
   - phpenv global $SHIPPABLE_PHP_VERSION
   - php --version
   - sudo apt-get update -qq
-  - sudo apt-get install -y postfix
   - sudo apt-get autoremove -y
+  - export DEBIAN_FRONTEND=noninteractive
+  - sudo apt-get install -y postfix
   - sudo apt-get autoclean
 
 before_script:
