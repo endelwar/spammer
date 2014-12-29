@@ -22,8 +22,8 @@ before_install:
 
 before_script:
   - sudo service postfix stop
-  - mkdir tmp
-  - smtp-sink -u postfix -d "./tmp/%Y%m%d%H/%M." 127.0.0.1:2500 1000 &
+  - mkdir ./tmp && chmod 777 ./tmp
+  - smtp-sink -u postfix -d "./tmp/%Y%m%d%H-%M." 127.0.0.1:2500 1000 &
   - mkdir -p build/logs
   - mkdir -p shippable/codecoverage
   - mkdir -p shippable/testresults
