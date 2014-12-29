@@ -17,8 +17,7 @@ before_install:
   - php --version
   - sudo apt-get update -qq
   - sudo apt-get autoremove -y
-  - export DEBIAN_FRONTEND=noninteractive
-  - sudo apt-get install -y postfix
+  - sudo DEBIAN_FRONTEND=noninteractive apt-get -y install postfix
   - sudo apt-get autoclean
 
 before_script:
