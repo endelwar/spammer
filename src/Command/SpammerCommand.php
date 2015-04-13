@@ -39,50 +39,45 @@ class SpammerCommand extends Command
     {
         $validInput = $this->validateInput($input);
 
-        try {
-            $style = new OutputFormatterStyle('green', null, array('bold'));
-            $output->getFormatter()->setStyle('bold', $style);
-            $output->writeln('<comment>Spammer starting up</comment>');
-            $output->write(
-                '<info>Sending </info><bold>' . $validInput['count'] .
-                '</bold><info> email to server </info><bold>' . $validInput['smtpServerIp'] .
-                '</bold><info>:</info><bold>' . $validInput['smtpServerPort'] . '</bold>'
-            );
-            $output->writeln('<info> using locale </info><bold>' . $validInput['locale'] . '</bold>');
+        $style = new OutputFormatterStyle('green', null, array('bold'));
+        $output->getFormatter()->setStyle('bold', $style);
+        $output->writeln('<comment>Spammer starting up</comment>');
+        $output->write(
+            '<info>Sending </info><bold>' . $validInput['count'] .
+            '</bold><info> email to server </info><bold>' . $validInput['smtpServerIp'] .
+            '</bold><info>:</info><bold>' . $validInput['smtpServerPort'] . '</bold>'
+        );
+        $output->writeln('<info> using locale </info><bold>' . $validInput['locale'] . '</bold>');
 
-            $faker = Faker\Factory::create($validInput['locale']);
-            $faker->seed(mt_rand());
+        $faker = Faker\Factory::create($validInput['locale']);
+        $faker->seed(mt_rand());
 
-            $transport = \Swift_SmtpTransport::newInstance()->setHost($validInput['smtpServerIp'])->setPort(
-                $validInput['smtpServerPort']
-            );
-            $mailer = \Swift_Mailer::newInstance($transport);
+        $transport = \Swift_SmtpTransport::newInstance()->setHost($validInput['smtpServerIp'])->setPort(
+            $validInput['smtpServerPort']
+        );
+        $mailer = \Swift_Mailer::newInstance($transport);
 
-            $numSent = 0;
-            for ($i = 0; $i < $validInput['count']; $i++) {
-                $output->writeln("Sending email nr. " . ($i + 1));
-                $emaiText = $faker->realText(mt_rand(200, 1000));
-                $email_subject = implode(' ', $faker->words(mt_rand(3, 7)));
-                $message = \Swift_Message::newInstance($email_subject)
-                    ->setFrom(array($faker->safeEmail => $faker->name))
-                    ->setTo(array($faker->safeEmail => $faker->name))
-                    ->setBody($emaiText, 'text/plain')
-                    ->addPart('<p>' . $emaiText . '</p>', 'text/html');
+        $numSent = 0;
+        for ($i = 0; $i < $validInput['count']; $i++) {
+            $output->writeln("Sending email nr. " . ($i + 1));
+            $emaiText = $faker->realText(mt_rand(200, 1000));
+            $email_subject = implode(' ', $faker->words(mt_rand(3, 7)));
+            $message = \Swift_Message::newInstance($email_subject)
+                ->setFrom(array($faker->safeEmail => $faker->name))
+                ->setTo(array($faker->safeEmail => $faker->name))
+                ->setBody($emaiText, 'text/plain')
+                ->addPart('<p>' . $emaiText . '</p>', 'text/html');
 
-                try {
-                    $numSent += $mailer->send($message);
-                } catch (\Swift_TransportException $swe) {
-                    $output->writeLn('<error>' . $swe->getMessage() . '</error>');
-                    return 1;
-                }
+            try {
+                $numSent += $mailer->send($message);
+            } catch (\Swift_TransportException $swe) {
+                $output->writeLn('<error>' . $swe->getMessage() . '</error>');
+                return 1;
             }
-
-            $output->writeln("Sent " . $numSent . " messages");
-            return 0;
-        } catch (\Exception $e) {
-            $output->writeLn('<error>' . $e->getMessage() . '</error>');
-            return 1;
         }
+
+        $output->writeln("Sent " . $numSent . " messages");
+        return 0;
     }
 
     /**
