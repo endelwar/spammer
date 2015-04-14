@@ -4,7 +4,7 @@ namespace EndelWar\Spammer\Test;
 use EndelWar\Spammer\Application;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
-class SpammerTest extends \PHPUnit_Framework_TestCase
+class SpammerApplicationTest extends \PHPUnit_Framework_TestCase
 {
     private $spammer;
 
