@@ -1,4 +1,5 @@
 <?php
+
 namespace EndelWar\Spammer\Application;
 
 use EndelWar\Spammer\Command as Command;

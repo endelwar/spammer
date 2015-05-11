@@ -1,4 +1,5 @@
 <?php
+
 namespace EndelWar\Spammer\Test;
 
 use EndelWar\Spammer\Application;
@@ -30,7 +31,7 @@ class SpammerApplicationTest extends \PHPUnit_Framework_TestCase
         $spammerTester->run(
             array(
                 '-p' => '2500',
-                '-c' => '3'
+                '-c' => '3',
             )
         );
         $output = $spammerTester->getDisplay();
@@ -57,7 +58,7 @@ class SpammerApplicationTest extends \PHPUnit_Framework_TestCase
         $spammerTester->run(
             array(
                 '-s' => '127.0.0.1',
-                '-p' => '2500'
+                '-p' => '2500',
             )
         );
 
@@ -73,7 +74,7 @@ class SpammerApplicationTest extends \PHPUnit_Framework_TestCase
             array(
                 '-s' => '127.0.0.1',
                 '-p' => '2500',
-                '-c' => '1'
+                '-c' => '1',
             )
         );
 
@@ -89,7 +90,7 @@ class SpammerApplicationTest extends \PHPUnit_Framework_TestCase
             array(
                 '-s' => '127.0.0.1',
                 '-p' => '2500',
-                '-c' => '5'
+                '-c' => '5',
             )
         );
 
@@ -104,7 +105,7 @@ class SpammerApplicationTest extends \PHPUnit_Framework_TestCase
             array(
                 '-p' => '2500',
                 '-c' => '1',
-                '-l' => 'pl_PL'
+                '-l' => 'pl_PL',
             )
         );
         $output = $spammerTester->getDisplay();

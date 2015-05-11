@@ -1,4 +1,5 @@
 <?php
+
 namespace EndelWar\Spammer\Command;
 
 use Faker;
@@ -25,7 +26,7 @@ class SpammerCommand extends Command
                     new InputOption('server', 's', InputOption::VALUE_OPTIONAL, 'SMTP Server ip to send email to', $smtpServerIp),
                     new InputOption('port', 'p', InputOption::VALUE_OPTIONAL, 'SMTP Server port to send email to', $smtpServerPort),
                     new InputOption('count', 'c', InputOption::VALUE_OPTIONAL, 'Number of email to send', $count),
-                    new InputOption('locale', 'l', InputOption::VALUE_OPTIONAL, 'Locale to use', $locale)
+                    new InputOption('locale', 'l', InputOption::VALUE_OPTIONAL, 'Locale to use', $locale),
                 )
             );
     }
@@ -59,7 +60,7 @@ class SpammerCommand extends Command
 
         $numSent = 0;
         for ($i = 0; $i < $validInput['count']; $i++) {
-            $output->writeln("Sending email nr. " . ($i + 1));
+            $output->writeln('Sending email nr. ' . ($i + 1));
             $emaiText = $faker->realText(mt_rand(200, 1000));
             $email_subject = implode(' ', $faker->words(mt_rand(3, 7)));
             $message = \Swift_Message::newInstance($email_subject)
@@ -72,18 +73,20 @@ class SpammerCommand extends Command
                 $numSent += $mailer->send($message);
             } catch (\Swift_TransportException $swe) {
                 $output->writeLn('<error>' . $swe->getMessage() . '</error>');
+
                 return 1;
             }
         }
 
-        $output->writeln("Sent " . $numSent . " messages");
+        $output->writeln('Sent ' . $numSent . ' messages');
+
         return 0;
     }
 
     /**
      * @param InputInterface $input
-     * @return array
      * @throws \InvalidArgumentException
+     * @return array
      */
     protected function validateInput(InputInterface $input)
     {
