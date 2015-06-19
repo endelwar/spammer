@@ -2,7 +2,7 @@
 
 Spammer is a CLI application that sends randomly generated email to a SMTP server.
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/endelwar/spammer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/endelwar/spammer/?branch=master) [![Code Coverage](https://scrutinizer-ci.com/g/endelwar/spammer/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/endelwar/spammer/?branch=master) [![Build Status](https://scrutinizer-ci.com/g/endelwar/spammer/badges/build.png?b=master)](https://scrutinizer-ci.com/g/endelwar/spammer/build-status/master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/endelwar/spammer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/endelwar/spammer/?branch=master) [![Code Coverage](https://scrutinizer-ci.com/g/endelwar/spammer/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/endelwar/spammer/?branch=master) [![Build Status](https://travis-ci.org/endelwar/spammer.svg?branch=master)](https://travis-ci.org/endelwar/spammer)
 
 ## Usage
 
