@@ -1,7 +1,3 @@
-build_image: shippableimages/ubuntu1404_php
-
-cache: true
-
 language: php
 
 php:
