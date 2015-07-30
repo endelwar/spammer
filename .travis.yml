@@ -18,7 +18,6 @@ addons:
 before_script:
   - composer self-update
   - composer install
-  - sudo service postfix stop
   - smtp-sink -d "build/email/%d.%H.%M.%S" 127.0.0.1:2500 1000 &
   - mkdir -p build/logs
 
