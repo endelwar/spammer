@@ -92,23 +92,37 @@ class SpammerCommand extends Command
     {
         $validInput = array();
         $validInput['smtpServerIp'] = $input->getOption('server');
-        if (!filter_var($validInput['smtpServerIp'], FILTER_VALIDATE_IP)) {
-            throw new \InvalidArgumentException('server option is not a valid IP');
-        }
+        $this->validateInputServerIP($validInput['smtpServerIp']);
+
         $validInput['smtpServerPort'] = $input->getOption('port');
-        if (!is_numeric($validInput['smtpServerPort']) ||
-            ($validInput['smtpServerPort'] < 0 || $validInput['smtpServerPort'] > 65535)
-        ) {
-            throw new \InvalidArgumentException('server port must be a number between 0 and 65536');
-        }
+        $this->validateInputServerPort($validInput['smtpServerPort']);
 
         $validInput['count'] = intval($input->getOption('count'));
-        if ($validInput['count'] < 1) {
-            throw new \InvalidArgumentException('count must be equal or greater than 1 (you want to send email, right?)');
-        }
+        $this->validateInputCount($validInput['count']);
 
         $validInput['locale'] = $input->getOption('locale');
 
         return $validInput;
+    }
+
+    private function validateInputServerIP($ip)
+    {
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            throw new \InvalidArgumentException('server option is not a valid IP');
+        }
+    }
+
+    private function validateInputServerPort($port)
+    {
+        if (!is_numeric($port) || ($port < 0 || $port > 65535)) {
+            throw new \InvalidArgumentException('server port must be a number between 0 and 65536');
+        }
+    }
+
+    private function validateInputCount($count)
+    {
+        if ($count < 1) {
+            throw new \InvalidArgumentException('count must be equal or greater than 1 (you want to send email, right?)');
+        }
     }
 }
