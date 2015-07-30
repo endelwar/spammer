@@ -21,7 +21,7 @@ before_script:
   - smtp-sink -d "build/email/%d.%H.%M.%S" 127.0.0.1:2500 1000 &
   - mkdir -p build/logs
 
-after_script:
+after_success:
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover build/logs/clover.xml
   - "CODECLIMATE_REPO_TOKEN=a757d1980821cc8b324859a9755a1c8524c1e00409a8fa00a67acd41a649cf25 ./vendor/bin/test-reporter --stdout > codeclimate.json"
