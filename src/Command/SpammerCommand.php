@@ -106,6 +106,10 @@ class SpammerCommand extends Command
         return $validInput;
     }
 
+    /**
+     * @param string $ip
+     * @throws \InvalidArgumentException
+     */
     private function validateInputServerIP($ip)
     {
         if (!filter_var($ip, FILTER_VALIDATE_IP)) {
@@ -113,6 +117,10 @@ class SpammerCommand extends Command
         }
     }
 
+    /**
+     * @param int $port
+     * @throws \InvalidArgumentException
+     */
     private function validateInputServerPort($port)
     {
         if (!is_numeric($port) || ($port < 0 || $port > 65535)) {
@@ -120,6 +128,10 @@ class SpammerCommand extends Command
         }
     }
 
+    /**
+     * @param int $count
+     * @throws \InvalidArgumentException
+     */
     private function validateInputCount($count)
     {
         if ($count < 1) {
