@@ -3,9 +3,10 @@
 namespace EndelWar\Spammer\Test;
 
 use EndelWar\Spammer\Application;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
-class SpammerApplicationTest extends \PHPUnit_Framework_TestCase
+class SpammerApplicationTest extends TestCase
 {
     private $spammer;
 
