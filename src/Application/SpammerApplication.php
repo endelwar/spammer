@@ -2,7 +2,7 @@
 
 namespace EndelWar\Spammer\Application;
 
-use EndelWar\Spammer\Command as Command;
+use EndelWar\Spammer\Command;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 
@@ -24,6 +24,7 @@ class SpammerApplication extends Application
      * Gets the default commands that should always be available.
      *
      * @return array An array of default Command instances
+     * @throws \Symfony\Component\Console\Exception\LogicException
      */
     protected function getDefaultCommands()
     {

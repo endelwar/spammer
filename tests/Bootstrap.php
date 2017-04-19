@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the GestPayWS library.
+ * This file is part of the Spammer application.
  *
  * (c) Manuel Dalla Lana <endelwar@aregar.it>
  *

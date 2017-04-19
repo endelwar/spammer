@@ -35,6 +35,7 @@ class SpammerCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return integer
+     * @throws \InvalidArgumentException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -72,7 +73,7 @@ class SpammerCommand extends Command
             try {
                 $numSent += $mailer->send($message);
             } catch (\Swift_TransportException $swe) {
-                $output->writeLn('<error>' . $swe->getMessage() . '</error>');
+                $output->writeln('<error>' . $swe->getMessage() . '</error>');
 
                 return 1;
             }
@@ -97,7 +98,7 @@ class SpammerCommand extends Command
         $validInput['smtpServerPort'] = $input->getOption('port');
         $this->validateInputServerPort($validInput['smtpServerPort']);
 
-        $validInput['count'] = intval($input->getOption('count'));
+        $validInput['count'] = (int)$input->getOption('count');
         $this->validateInputCount($validInput['count']);
 
         $validInput['locale'] = $input->getOption('locale');

@@ -123,7 +123,7 @@ class SpammerApplicationTest extends TestCase
             )
         );
         $output = $spammerTester->getDisplay();
-        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains(\InvalidArgumentException::class, $output);
         $this->assertContains('server option is not a valid IP', $output);
     }
 
@@ -136,7 +136,7 @@ class SpammerApplicationTest extends TestCase
             )
         );
         $output = $spammerTester->getDisplay();
-        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains(\InvalidArgumentException::class, $output);
         $this->assertContains('server option is not a valid IP', $output);
     }
 
@@ -149,7 +149,7 @@ class SpammerApplicationTest extends TestCase
             )
         );
         $output = $spammerTester->getDisplay();
-        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains(\InvalidArgumentException::class, $output);
         $this->assertContains('count must be equal or greater than 1 (you want to send email, right?)', $output);
     }
 
@@ -162,7 +162,7 @@ class SpammerApplicationTest extends TestCase
             )
         );
         $output = $spammerTester->getDisplay();
-        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains(\InvalidArgumentException::class, $output);
         $this->assertContains('server port must be a number between 0 and 65536', $output);
     }
 
@@ -175,7 +175,7 @@ class SpammerApplicationTest extends TestCase
             )
         );
         $output = $spammerTester->getDisplay();
-        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains(\InvalidArgumentException::class, $output);
         $this->assertContains('server port must be a number between 0 and 65536', $output);
     }
 
@@ -188,7 +188,7 @@ class SpammerApplicationTest extends TestCase
             )
         );
         $output = $spammerTester->getDisplay();
-        $this->assertContains('InvalidArgumentException', $output);
+        $this->assertContains(\InvalidArgumentException::class, $output);
         $this->assertContains('server port must be a number between 0 and 65536', $output);
     }
 
