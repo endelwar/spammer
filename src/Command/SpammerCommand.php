@@ -115,7 +115,7 @@ class SpammerCommand extends Command
             return [$validInputFromTo => $faker->name];
         }
 
-        // get a rendom username and attach it to domain supplied by user
+        // get a random username and attach it to domain supplied by user
         $user = strstr($faker->safeEmail, '@', true);
 
         return [$user . '@' . $validInputFromTo => $faker->name];
