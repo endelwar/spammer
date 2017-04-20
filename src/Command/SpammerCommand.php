@@ -27,6 +27,8 @@ class SpammerCommand extends Command
                     new InputOption('port', 'p', InputOption::VALUE_OPTIONAL, 'SMTP Server port to send email to', $smtpServerPort),
                     new InputOption('count', 'c', InputOption::VALUE_OPTIONAL, 'Number of email to send', $count),
                     new InputOption('locale', 'l', InputOption::VALUE_OPTIONAL, 'Locale to use', $locale),
+                    new InputOption('to', 't', InputOption::VALUE_OPTIONAL, 'To address or domain'),
+                    new InputOption('from', 'f', InputOption::VALUE_OPTIONAL, 'From address or domain'),
                 )
             );
     }
@@ -44,11 +46,16 @@ class SpammerCommand extends Command
         $style = new OutputFormatterStyle('green', null, array('bold'));
         $output->getFormatter()->setStyle('bold', $style);
         $output->writeln('<comment>Spammer starting up</comment>');
-        $output->write(
-            '<info>Sending </info><bold>' . $validInput['count'] .
-            '</bold><info> email to server </info><bold>' . $validInput['smtpServerIp'] .
-            '</bold><info>:</info><bold>' . $validInput['smtpServerPort'] . '</bold>'
-        );
+        $message = '<info>Sending </info><bold>' . $validInput['count'] . '</bold>' .
+            '<info> email to server </info><bold>' . $validInput['smtpServerIp'] . '</bold>' .
+            '<info>:</info><bold>' . $validInput['smtpServerPort'] . '</bold>';
+        if ($validInput['from'] !== '') {
+            $message .= '<info> from </info><bold>' . $validInput['from'] . '</bold>';
+        }
+        if ($validInput['to'] !== '') {
+            $message .= '<info> to </info><bold>' . $validInput['to'] . '</bold>';
+        }
+        $output->write($message);
         $output->writeln('<info> using locale </info><bold>' . $validInput['locale'] . '</bold>');
 
         $faker = Faker\Factory::create($validInput['locale']);
@@ -61,15 +68,20 @@ class SpammerCommand extends Command
 
         $numSent = 0;
         for ($i = 0; $i < $validInput['count']; $i++) {
-            $output->writeln('Sending email nr. ' . ($i + 1));
             $emaiText = $faker->realText(mt_rand(200, 1000));
             $email_subject = implode(' ', $faker->words(mt_rand(3, 7)));
-            $message = \Swift_Message::newInstance($email_subject)
-                ->setFrom(array($faker->safeEmail => $faker->name))
-                ->setTo(array($faker->safeEmail => $faker->name))
-                ->setBody($emaiText, 'text/plain')
-                ->addPart('<p>' . $emaiText . '</p>', 'text/html');
+            $message = \Swift_Message::newInstance($email_subject);
 
+            $from = $this->getFromTo($faker, $validInput['from']);
+            $message->setFrom($from);
+
+            $to = $this->getFromTo($faker, $validInput['to']);
+            $message->setTo($to);
+
+            $message->setBody($emaiText, 'text/plain');
+            $message->addPart('<p>' . $emaiText . '</p>', 'text/html');
+
+            $output->writeln('Sending email nr. ' . ($i + 1) . ': ' . key($from) . ' => ' . key($to));
             try {
                 $numSent += $mailer->send($message);
             } catch (\Swift_TransportException $swe) {
@@ -81,7 +93,32 @@ class SpammerCommand extends Command
 
         $output->writeln('Sent ' . $numSent . ' messages');
 
+        unset($faker);
+
         return 0;
+    }
+
+    /**
+     * @param $faker
+     * @param $validInputFromTo
+     * @return array
+     */
+    private function getFromTo($faker, $validInputFromTo)
+    {
+        // generate fake address and name if null
+        if ($validInputFromTo === '') {
+            return [$faker->safeEmail => $faker->name];
+        }
+
+        // use user submitted email if is email
+        if (filter_var($validInputFromTo, FILTER_VALIDATE_EMAIL)) {
+            return [$validInputFromTo => $faker->name];
+        }
+
+        // get a random username and attach it to domain supplied by user
+        $user = strstr($faker->safeEmail, '@', true);
+
+        return [$user . '@' . $validInputFromTo => $faker->name];
     }
 
     /**
@@ -102,6 +139,10 @@ class SpammerCommand extends Command
         $this->validateInputCount($validInput['count']);
 
         $validInput['locale'] = $input->getOption('locale');
+
+        $validInput['to'] = $this->validateInputToFrom($input->getOption('to'));
+
+        $validInput['from'] = $this->validateInputToFrom($input->getOption('from'));
 
         return $validInput;
     }
@@ -137,5 +178,42 @@ class SpammerCommand extends Command
         if ($count < 1) {
             throw new \InvalidArgumentException('count must be equal or greater than 1 (you want to send email, right?)');
         }
+    }
+
+    /**
+     * @param $string
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    private function validateInputToFrom($string)
+    {
+        if (null === $string) {
+            return '';
+        }
+
+        $string = strtolower($string);
+        if (strpos($string, '@') !== false) {
+            if (filter_var($string, FILTER_VALIDATE_EMAIL)) {
+                return $string;
+            }
+        } else {
+            if ($this->filter_var_domain($string)) {
+                return $string;
+            }
+        }
+
+        throw new \InvalidArgumentException('to and from must be a valid email address or a FQDN');
+    }
+
+    /**
+     * @param $domain
+     * @return bool|mixed
+     */
+    private function filter_var_domain($domain)
+    {
+        $domain = strtolower($domain);
+        $regex = "/^((?=[a-z0-9-]{1,63}\.)(xn--)?[a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,63}$/";
+
+        return preg_match($regex, $domain);
     }
 }

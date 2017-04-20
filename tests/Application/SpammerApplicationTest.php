@@ -8,12 +8,18 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 
 class SpammerApplicationTest extends TestCase
 {
+    /** @var Application\SpammerApplication $spammer */
     private $spammer;
 
     protected function setUp()
     {
         $this->spammer = new Application\SpammerApplication();
         $this->spammer->setAutoExit(false); // Set autoExit to false when testing
+    }
+
+    protected function tearDown()
+    {
+        $this->spammer = null;
     }
 
     public function testHelp()
@@ -24,6 +30,8 @@ class SpammerApplicationTest extends TestCase
         $this->assertContains('--server', $output);
         $this->assertContains('--port', $output);
         $this->assertContains('--count', $output);
+        $this->assertContains('--to', $output);
+        $this->assertContains('--from', $output);
     }
 
     public function testExecute()
@@ -40,7 +48,7 @@ class SpammerApplicationTest extends TestCase
         $this->assertContains('Sent 3 messages', $output);
     }
 
-    /* testing with option: -p 2500 (used by smtp-sink on travis-ci) */
+    /* testing with option: -p 2500 (used by postfix smtp-sink on travis-ci) */
     public function testSendUsingPort2500()
     {
         $spammerTester = new ApplicationTester($this->spammer);
@@ -203,5 +211,125 @@ class SpammerApplicationTest extends TestCase
         $output = $spammerTester->getDisplay();
         $this->assertContains('Connection refused', $output);
         $this->assertContains('Connection could not be established with host 127.0.0.1', $output);
+    }
+
+    public function testToAddress()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-c' => '1',
+                '-p' => '2500',
+                '-t' => 'user@example.org',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains('Sending 1 email to server 127.0.0.1:2500 to user@example.org using locale en_US', $output);
+        $this->assertContains('Sent 1 messages', $output);
+    }
+
+    public function testToFqdn()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-c' => '1',
+                '-p' => '2500',
+                '-t' => 'example.org',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+
+        $this->assertContains('Sending 1 email to server 127.0.0.1:2500 to example.org using locale en_US', $output);
+        $this->assertRegExp('/Sending email nr. 1: \S+@\S+\.\S{2,} => \S+@example.org/', $output);
+        $this->assertContains('Sent 1 messages', $output);
+    }
+
+    public function testFromAddress()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-c' => '1',
+                '-p' => '2500',
+                '-f' => 'user@example.org',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains('Sending 1 email to server 127.0.0.1:2500 from user@example.org using locale en_US', $output);
+        $this->assertContains('Sent 1 messages', $output);
+    }
+
+    public function testFromFqdn()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-c' => '1',
+                '-p' => '2500',
+                '-f' => 'example.org',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+
+        $this->assertContains('Sending 1 email to server 127.0.0.1:2500 from example.org using locale en_US', $output);
+        $this->assertRegExp('/Sending email nr. 1: \S+@example.org => \S+@\S+\.\S{2,}/', $output);
+        $this->assertContains('Sent 1 messages', $output);
+    }
+
+    public function testFromAddressToAddress()
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-c' => '1',
+                '-p' => '2500',
+                '-f' => 'user1@example.org',
+                '-t' => 'user2@example.com',
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains('Sending 1 email to server 127.0.0.1:2500 from user1@example.org to user2@example.com using locale en_US', $output);
+        $this->assertContains('Sending email nr. 1: user1@example.org => user2@example.com', $output);
+        $this->assertContains('Sent 1 messages', $output);
+    }
+
+    /**
+     * @param $invalidFromTo
+     *
+     * @dataProvider badFromToProvider
+     */
+    public function testBadFromTo($invalidFromTo)
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-c' => '1',
+                '-p' => '2500',
+                '-f' => $invalidFromTo,
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains(\InvalidArgumentException::class, $output);
+        $this->assertContains('to and from must be a valid email address or a FQDN', $output);
+    }
+
+    public function badFromToProvider()
+    {
+        return [
+            'boolean' => [true],
+            'string' => ['abcd'],
+            'email: single char' => ['@'],
+            'email: only domain' => ['@test'],
+            'email: localhost' => ['me@localhost'],
+            'email: double dot' => ['test@example..com'],
+            'email: dot at end' => ['test@example.com.'],
+            'email: dot at start' => ['.test@example.com'],
+            'email: double @' => ['test@test@example.com'],
+            'domain: dot at end' => ['notvalid.com.'],
+            'domain: dot at start' => ['.notvalid.com'],
+            'domain: minus at start' => ['-notvalid.com'],
+            'domain: minus at end' => ['notvalid.com-'],
+        ];
     }
 }
