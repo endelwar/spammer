@@ -49,10 +49,10 @@ class SpammerCommand extends Command
         $message = '<info>Sending </info><bold>' . $validInput['count'] . '</bold>' .
             '<info> email to server </info><bold>' . $validInput['smtpServerIp'] . '</bold>' .
             '<info>:</info><bold>' . $validInput['smtpServerPort'] . '</bold>';
-        if ($validInput['from'] !== ''){
+        if ($validInput['from'] !== '') {
             $message .= '<info> from </info><bold>' . $validInput['from'] . '</bold>';
         }
-        if ($validInput['to'] !== ''){
+        if ($validInput['to'] !== '') {
             $message .= '<info> to </info><bold>' . $validInput['to'] . '</bold>';
         }
         $output->write($message);
@@ -92,7 +92,7 @@ class SpammerCommand extends Command
         }
 
         $output->writeln('Sent ' . $numSent . ' messages');
-        
+
         unset($faker);
 
         return 0;
@@ -190,12 +190,16 @@ class SpammerCommand extends Command
         if (null === $string) {
             return '';
         }
-        if (filter_var($string, FILTER_VALIDATE_EMAIL)) {
-            return $string;
-        }
 
-        if ($this->filter_var_domain($string)) {
-            return $string;
+        $string = strtolower($string);
+        if (strpos($string, '@') !== false) {
+            if (filter_var($string, FILTER_VALIDATE_EMAIL)) {
+                return $string;
+            }
+        } else {
+            if ($this->filter_var_domain($string)) {
+                return $string;
+            }
         }
 
         throw new \InvalidArgumentException('to and from must be a valid email address or a FQDN');
@@ -207,19 +211,9 @@ class SpammerCommand extends Command
      */
     private function filter_var_domain($domain)
     {
-        if (stripos($domain, 'http://') === 0) {
-            $domain = substr($domain, 7);
-        }
+        $domain = strtolower($domain);
+        $regex = "/^((?=[a-z0-9-]{1,63}\.)(xn--)?[a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,63}$/";
 
-        // Not even a single . this will eliminate things like abcd, since http://abcd is reported valid
-        if (!substr_count($domain, '.')) {
-            return false;
-        }
-
-        if (stripos($domain, 'www.') === 0) {
-            $domain = substr($domain, 4);
-        }
-
-        return filter_var('http://' . $domain, FILTER_VALIDATE_URL);
+        return preg_match($regex, $domain);
     }
 }

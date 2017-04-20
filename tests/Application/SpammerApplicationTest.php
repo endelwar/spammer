@@ -8,6 +8,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 
 class SpammerApplicationTest extends TestCase
 {
+    /** @var Application\SpammerApplication $spammer */
     private $spammer;
 
     protected function setUp()
@@ -239,7 +240,9 @@ class SpammerApplicationTest extends TestCase
         );
         $output = $spammerTester->getDisplay();
 
-        $this->markTestIncomplete('This test has not been implemented yet.');
+        $this->assertContains('Sending 1 email to server 127.0.0.1:2500 to example.org using locale en_US', $output);
+        $this->assertRegExp('/Sending email nr. 1: \S+@\S+\.\S{2,} => \S+@example.org/', $output);
+        $this->assertContains('Sent 1 messages', $output);
     }
 
     public function testFromAddress()
@@ -269,7 +272,9 @@ class SpammerApplicationTest extends TestCase
         );
         $output = $spammerTester->getDisplay();
 
-        $this->markTestIncomplete('This test has not been implemented yet.');
+        $this->assertContains('Sending 1 email to server 127.0.0.1:2500 from example.org using locale en_US', $output);
+        $this->assertRegExp('/Sending email nr. 1: \S+@example.org => \S+@\S+\.\S{2,}/', $output);
+        $this->assertContains('Sent 1 messages', $output);
     }
 
     public function testFromAddressToAddress()
@@ -287,5 +292,44 @@ class SpammerApplicationTest extends TestCase
         $this->assertContains('Sending 1 email to server 127.0.0.1:2500 from user1@example.org to user2@example.com using locale en_US', $output);
         $this->assertContains('Sending email nr. 1: user1@example.org => user2@example.com', $output);
         $this->assertContains('Sent 1 messages', $output);
+    }
+
+    /**
+     * @param $invalidFromTo
+     *
+     * @dataProvider badFromToProvider
+     */
+    public function testBadFromTo($invalidFromTo)
+    {
+        $spammerTester = new ApplicationTester($this->spammer);
+        $spammerTester->run(
+            array(
+                '-c' => '1',
+                '-p' => '2500',
+                '-f' => $invalidFromTo,
+            )
+        );
+        $output = $spammerTester->getDisplay();
+        $this->assertContains(\InvalidArgumentException::class, $output);
+        $this->assertContains('to and from must be a valid email address or a FQDN', $output);
+    }
+
+    public function badFromToProvider()
+    {
+        return [
+            'boolean' => [true],
+            'string' => ['abcd'],
+            'email: single char' => ['@'],
+            'email: only domain' => ['@test'],
+            'email: localhost' => ['me@localhost'],
+            'email: double dot' => ['test@example..com'],
+            'email: dot at end' => ['test@example.com.'],
+            'email: dot at start' => ['.test@example.com'],
+            'email: double @' => ['test@test@example.com'],
+            'domain: dot at end' => ['notvalid.com.'],
+            'domain: dot at start' => ['.notvalid.com'],
+            'domain: minus at start' => ['-notvalid.com'],
+            'domain: minus at end' => ['notvalid.com-'],
+        ];
     }
 }
