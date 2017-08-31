@@ -69,8 +69,8 @@ class SpammerCommand extends Command
         $numSent = 0;
         for ($i = 0; $i < $validInput['count']; $i++) {
             $emaiText = $faker->realText(mt_rand(200, 1000));
-            $email_subject = implode(' ', $faker->words(mt_rand(3, 7)));
-            $message = \Swift_Message::newInstance($email_subject);
+            $emailSubject = implode(' ', $faker->words(mt_rand(3, 7)));
+            $message = \Swift_Message::newInstance($emailSubject);
 
             $from = $this->getFromTo($faker, $validInput['from']);
             $message->setFrom($from);
@@ -197,7 +197,7 @@ class SpammerCommand extends Command
                 return $string;
             }
         } else {
-            if ($this->filter_var_domain($string)) {
+            if ($this->isValidDomain($string)) {
                 return $string;
             }
         }
@@ -209,7 +209,7 @@ class SpammerCommand extends Command
      * @param $domain
      * @return bool|mixed
      */
-    private function filter_var_domain($domain)
+    private function isValidDomain($domain)
     {
         $domain = strtolower($domain);
         $regex = "/^((?=[a-z0-9-]{1,63}\.)(xn--)?[a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,63}$/";
