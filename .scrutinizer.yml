@@ -20,8 +20,6 @@ tools:
     php_mess_detector: true
     php_pdepend: true
     php_analyzer: true
-    php_cpd:
-      enabled: true
-      excluded_dirs: ["vendor", "tests"]
+    php_cpd: false
     external_code_coverage: true
     sensiolabs_security_checker: true
