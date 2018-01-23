@@ -1,6 +1,17 @@
+build:
+    nodes:
+        analysis:
+            project_setup:
+                override: true
+            tests:
+                override:
+                    - php-scrutinizer-run --enable-security-analysis
+
 filter:
     paths: ["src/*"]
     excluded_paths: ["vendor/*", "tests/*"]
+    dependency_paths:
+        - "vendor/"
 tools:
     php_code_sniffer: true
     php_sim: true
