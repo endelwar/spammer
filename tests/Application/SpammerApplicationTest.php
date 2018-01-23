@@ -25,7 +25,7 @@ class SpammerApplicationTest extends TestCase
     public function testHelp()
     {
         $spammerTester = new ApplicationTester($this->spammer);
-        $spammerTester->run(array('--help' => true));
+        $spammerTester->run(['--help' => true]);
         $output = $spammerTester->getDisplay();
         $this->assertContains('--server', $output);
         $this->assertContains('--port', $output);
@@ -38,10 +38,10 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-p' => '2500',
                 '-c' => '3',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains('Sending 3 email to server 127.0.0.1:2500', $output);
@@ -53,7 +53,7 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array('-p' => '2500')
+            ['-p' => '2500']
         );
 
         $this->assertContains('Sending 10 email to server 127.0.0.1:2500', $spammerTester->getDisplay());
@@ -65,10 +65,10 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-s' => '127.0.0.1',
                 '-p' => '2500',
-            )
+            ]
         );
 
         $this->assertContains('Sending 10 email to server 127.0.0.1:2500', $spammerTester->getDisplay());
@@ -80,11 +80,11 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-s' => '127.0.0.1',
                 '-p' => '2500',
                 '-c' => '1',
-            )
+            ]
         );
 
         $this->assertContains('Sending 1 email', $spammerTester->getDisplay());
@@ -96,11 +96,11 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-s' => '127.0.0.1',
                 '-p' => '2500',
                 '-c' => '5',
-            )
+            ]
         );
 
         $this->assertContains('Sending 5 email', $spammerTester->getDisplay());
@@ -111,11 +111,11 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-p' => '2500',
                 '-c' => '1',
                 '-l' => 'pl_PL',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains('Sending 1 email to server 127.0.0.1:2500 using locale pl_PL', $output);
@@ -126,9 +126,9 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-s' => 'localhost',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains(\InvalidArgumentException::class, $output);
@@ -139,9 +139,9 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-s' => '256.289.100.587',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains(\InvalidArgumentException::class, $output);
@@ -152,9 +152,9 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-c' => 'Lorem',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains(\InvalidArgumentException::class, $output);
@@ -165,9 +165,9 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-p' => '-123',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains(\InvalidArgumentException::class, $output);
@@ -178,9 +178,9 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-p' => '66000',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains(\InvalidArgumentException::class, $output);
@@ -191,9 +191,9 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-p' => 'Lorem',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains(\InvalidArgumentException::class, $output);
@@ -204,9 +204,9 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-p' => '2501',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains('Connection refused', $output);
@@ -217,11 +217,11 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-c' => '1',
                 '-p' => '2500',
                 '-t' => 'user@example.org',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains('Sending 1 email to server 127.0.0.1:2500 to user@example.org using locale en_US', $output);
@@ -232,11 +232,11 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-c' => '1',
                 '-p' => '2500',
                 '-t' => 'example.org',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
 
@@ -249,11 +249,11 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-c' => '1',
                 '-p' => '2500',
                 '-f' => 'user@example.org',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains('Sending 1 email to server 127.0.0.1:2500 from user@example.org using locale en_US', $output);
@@ -264,11 +264,11 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-c' => '1',
                 '-p' => '2500',
                 '-f' => 'example.org',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
 
@@ -281,12 +281,12 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-c' => '1',
                 '-p' => '2500',
                 '-f' => 'user1@example.org',
                 '-t' => 'user2@example.com',
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains('Sending 1 email to server 127.0.0.1:2500 from user1@example.org to user2@example.com using locale en_US', $output);
@@ -303,11 +303,11 @@ class SpammerApplicationTest extends TestCase
     {
         $spammerTester = new ApplicationTester($this->spammer);
         $spammerTester->run(
-            array(
+            [
                 '-c' => '1',
                 '-p' => '2500',
                 '-f' => $invalidFromTo,
-            )
+            ]
         );
         $output = $spammerTester->getDisplay();
         $this->assertContains(\InvalidArgumentException::class, $output);

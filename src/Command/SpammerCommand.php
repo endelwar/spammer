@@ -22,28 +22,29 @@ class SpammerCommand extends Command
             ->setName('spammer')
             ->setDescription('Send random content email')
             ->setDefinition(
-                array(
+                [
                     new InputOption('server', 's', InputOption::VALUE_OPTIONAL, 'SMTP Server ip to send email to', $smtpServerIp),
                     new InputOption('port', 'p', InputOption::VALUE_OPTIONAL, 'SMTP Server port to send email to', $smtpServerPort),
                     new InputOption('count', 'c', InputOption::VALUE_OPTIONAL, 'Number of email to send', $count),
                     new InputOption('locale', 'l', InputOption::VALUE_OPTIONAL, 'Locale to use', $locale),
                     new InputOption('to', 't', InputOption::VALUE_OPTIONAL, 'To address or domain'),
                     new InputOption('from', 'f', InputOption::VALUE_OPTIONAL, 'From address or domain'),
-                )
+                    new InputOption('set-corpus-path', null, InputOption::VALUE_OPTIONAL, 'Directory containing email corpus'),
+                ]
             );
     }
 
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return integer
      * @throws \InvalidArgumentException
+     * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $validInput = $this->validateInput($input);
 
-        $style = new OutputFormatterStyle('green', null, array('bold'));
+        $style = new OutputFormatterStyle('green', null, ['bold']);
         $output->getFormatter()->setStyle('bold', $style);
         $output->writeln('<comment>Spammer starting up</comment>');
         $message = '<info>Sending </info><bold>' . $validInput['count'] . '</bold>' .
@@ -128,7 +129,7 @@ class SpammerCommand extends Command
      */
     protected function validateInput(InputInterface $input)
     {
-        $validInput = array();
+        $validInput = [];
         $validInput['smtpServerIp'] = $input->getOption('server');
         $this->validateInputServerIP($validInput['smtpServerIp']);
 
@@ -182,8 +183,8 @@ class SpammerCommand extends Command
 
     /**
      * @param $string
-     * @return string
      * @throws \InvalidArgumentException
+     * @return string
      */
     private function validateInputToFrom($string)
     {
