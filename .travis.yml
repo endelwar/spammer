@@ -43,6 +43,6 @@ before_script:
 
 after_success:
   - if [[ $TRAVIS_PHP_VERSION = '5.6' ]]; then wget https://scrutinizer-ci.com/ocular.phar; fi
-  - if [[ $TRAVIS_PHP_VERSION = '5.6' ]]; then php ocular.phar code-coverage:upload --format=php-clover clover; fi
+  - if [[ $TRAVIS_PHP_VERSION = '5.6' ]]; then php ocular.phar code-coverage:upload --format=php-clover build/logs/clover.xml; fi
   - codecov
   - "CODECLIMATE_REPO_TOKEN=a757d1980821cc8b324859a9755a1c8524c1e00409a8fa00a67acd41a649cf25 ./vendor/bin/test-reporter"
