@@ -3,6 +3,9 @@
 namespace EndelWar\Spammer\Command;
 
 use Faker;
+use Swift_Mailer;
+use Swift_Message;
+use Swift_SmtpTransport;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,6 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SpammerCommand extends Command
 {
+    /**
+     * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
+     */
     protected function configure()
     {
         $count = 10;
@@ -37,16 +43,17 @@ class SpammerCommand extends Command
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @throws \InvalidArgumentException
+     * @throws \Exception
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $validInput = $this->validateInput($input);
 
         $style = new OutputFormatterStyle('green', null, ['bold']);
         $output->getFormatter()->setStyle('bold', $style);
         $output->writeln('<comment>Spammer starting up</comment>');
+
         $message = '<info>Sending </info><bold>' . $validInput['count'] . '</bold>' .
             '<info> email to server </info><bold>' . $validInput['smtpServerIp'] . '</bold>' .
             '<info>:</info><bold>' . $validInput['smtpServerPort'] . '</bold>';
@@ -62,16 +69,14 @@ class SpammerCommand extends Command
         $faker = Faker\Factory::create($validInput['locale']);
         $faker->seed(mt_rand());
 
-        $transport = \Swift_SmtpTransport::newInstance()->setHost($validInput['smtpServerIp'])->setPort(
-            $validInput['smtpServerPort']
-        );
-        $mailer = \Swift_Mailer::newInstance($transport);
+        $transport = new Swift_SmtpTransport($validInput['smtpServerIp'], $validInput['smtpServerPort']);
+        $mailer = new Swift_Mailer($transport);
 
         $numSent = 0;
         for ($i = 0; $i < $validInput['count']; $i++) {
-            $emaiText = $faker->realText(mt_rand(200, 1000));
-            $emailSubject = implode(' ', $faker->words(mt_rand(3, 7)));
-            $message = \Swift_Message::newInstance($emailSubject);
+            $emaiText = $faker->realText(random_int(200, 1000));
+            $emailSubject = implode(' ', $faker->words(random_int(3, 7)));
+            $message = new Swift_Message($emailSubject);
 
             $from = $this->getFromTo($faker, $validInput['from']);
             $message->setFrom($from);
@@ -85,7 +90,7 @@ class SpammerCommand extends Command
             $output->writeln('Sending email nr. ' . ($i + 1) . ': ' . key($from) . ' => ' . key($to));
             try {
                 $numSent += $mailer->send($message);
-            } catch (\Swift_TransportException $swe) {
+            } catch (\Exception $swe) {
                 $output->writeln('<error>' . $swe->getMessage() . '</error>');
 
                 return 1;
@@ -104,7 +109,7 @@ class SpammerCommand extends Command
      * @param $validInputFromTo
      * @return array
      */
-    private function getFromTo($faker, $validInputFromTo)
+    private function getFromTo($faker, $validInputFromTo): array
     {
         // generate fake address and name if null
         if ($validInputFromTo === '') {
@@ -127,7 +132,7 @@ class SpammerCommand extends Command
      * @throws \InvalidArgumentException
      * @return array
      */
-    protected function validateInput(InputInterface $input)
+    private function validateInput(InputInterface $input): array
     {
         $validInput = [];
         $validInput['smtpServerIp'] = $input->getOption('server');
@@ -186,7 +191,7 @@ class SpammerCommand extends Command
      * @throws \InvalidArgumentException
      * @return string
      */
-    private function validateInputToFrom($string)
+    private function validateInputToFrom($string): string
     {
         if (null === $string) {
             return '';
@@ -197,13 +202,11 @@ class SpammerCommand extends Command
             if (filter_var($string, FILTER_VALIDATE_EMAIL)) {
                 return $string;
             }
-        } else {
-            if ($this->isValidDomain($string)) {
-                return $string;
-            }
+        } elseif ($this->isValidDomain($string)) {
+            return $string;
         }
 
-        throw new \InvalidArgumentException('to and from must be a valid email address or a FQDN');
+        throw new \InvalidArgumentException('To and from must be a valid email address or a FQDN');
     }
 
     /**

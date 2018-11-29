@@ -24,7 +24,7 @@ class SpammerApplication extends Application
      * Gets the default commands that should always be available.
      *
      * @throws \Symfony\Component\Console\Exception\LogicException
-     * @return array An array of default Command instances
+     * @return \Symfony\Component\Console\Command\Command[] An array of default Command instances
      */
     protected function getDefaultCommands()
     {
