@@ -2,6 +2,7 @@
 
 namespace EndelWar\Spammer\Command;
 
+use EndelWar\Spammer\Validator;
 use Faker;
 use Swift_Mailer;
 use Swift_Message;
@@ -26,7 +27,7 @@ class SpammerCommand extends Command
 
         $this
             ->setName('spammer')
-            ->setDescription('Send random content email')
+            ->setDescription('Send random content email or email from a corpus')
             ->setDefinition(
                 [
                     new InputOption('server', 's', InputOption::VALUE_OPTIONAL, 'SMTP Server ip to send email to', $smtpServerIp),
@@ -48,12 +49,24 @@ class SpammerCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $validInput = $this->validateInput($input);
+        $validator = new Validator($input);
+        $validInput = $validator->validateInput();
 
         $style = new OutputFormatterStyle('green', null, ['bold']);
         $output->getFormatter()->setStyle('bold', $style);
         $output->writeln('<comment>Spammer starting up</comment>');
 
+        return $this->sendFakeEmail($output, $validInput);
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @param array $validInput
+     * @throws \Exception
+     * @return int
+     */
+    private function sendFakeEmail(OutputInterface $output, array $validInput): int
+    {
         $message = '<info>Sending </info><bold>' . $validInput['count'] . '</bold>' .
             '<info> email to server </info><bold>' . $validInput['smtpServerIp'] . '</bold>' .
             '<info>:</info><bold>' . $validInput['smtpServerPort'] . '</bold>';
@@ -105,11 +118,11 @@ class SpammerCommand extends Command
     }
 
     /**
-     * @param $faker
-     * @param $validInputFromTo
+     * @param Faker\Generator $faker
+     * @param string $validInputFromTo
      * @return array
      */
-    private function getFromTo($faker, $validInputFromTo): array
+    private function getFromTo(Faker\Generator $faker, $validInputFromTo): array
     {
         // generate fake address and name if null
         if ($validInputFromTo === '') {
@@ -125,99 +138,5 @@ class SpammerCommand extends Command
         $user = strstr($faker->safeEmail, '@', true);
 
         return [$user . '@' . $validInputFromTo => $faker->name];
-    }
-
-    /**
-     * @param InputInterface $input
-     * @throws \InvalidArgumentException
-     * @return array
-     */
-    private function validateInput(InputInterface $input): array
-    {
-        $validInput = [];
-        $validInput['smtpServerIp'] = $input->getOption('server');
-        $this->validateInputServerIP($validInput['smtpServerIp']);
-
-        $validInput['smtpServerPort'] = $input->getOption('port');
-        $this->validateInputServerPort($validInput['smtpServerPort']);
-
-        $validInput['count'] = (int)$input->getOption('count');
-        $this->validateInputCount($validInput['count']);
-
-        $validInput['locale'] = $input->getOption('locale');
-
-        $validInput['to'] = $this->validateInputToFrom($input->getOption('to'));
-
-        $validInput['from'] = $this->validateInputToFrom($input->getOption('from'));
-
-        return $validInput;
-    }
-
-    /**
-     * @param string $ip
-     * @throws \InvalidArgumentException
-     */
-    private function validateInputServerIP($ip)
-    {
-        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-            throw new \InvalidArgumentException('server option is not a valid IP');
-        }
-    }
-
-    /**
-     * @param int $port
-     * @throws \InvalidArgumentException
-     */
-    private function validateInputServerPort($port)
-    {
-        if (!is_numeric($port) || ($port < 0 || $port > 65535)) {
-            throw new \InvalidArgumentException('server port must be a number between 0 and 65536');
-        }
-    }
-
-    /**
-     * @param int $count
-     * @throws \InvalidArgumentException
-     */
-    private function validateInputCount($count)
-    {
-        if ($count < 1) {
-            throw new \InvalidArgumentException('count must be equal or greater than 1 (you want to send email, right?)');
-        }
-    }
-
-    /**
-     * @param $string
-     * @throws \InvalidArgumentException
-     * @return string
-     */
-    private function validateInputToFrom($string): string
-    {
-        if (null === $string) {
-            return '';
-        }
-
-        $string = strtolower($string);
-        if (strpos($string, '@') !== false) {
-            if (filter_var($string, FILTER_VALIDATE_EMAIL)) {
-                return $string;
-            }
-        } elseif ($this->isValidDomain($string)) {
-            return $string;
-        }
-
-        throw new \InvalidArgumentException('To and from must be a valid email address or a FQDN');
-    }
-
-    /**
-     * @param $domain
-     * @return bool|mixed
-     */
-    private function isValidDomain($domain)
-    {
-        $domain = strtolower($domain);
-        $regex = "/^((?=[a-z0-9-]{1,63}\.)(xn--)?[a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,63}$/";
-
-        return preg_match($regex, $domain);
     }
 }

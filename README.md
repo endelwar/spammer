@@ -23,6 +23,6 @@ Options:
 
 ## License
 
-Copyright (c) 2014 Manuel Dalla Lana (endelwar@aregar.it)
+Copyright (c) 2018 Manuel Dalla Lana (endelwar@aregar.it)
 
 This app is licensed under the MIT license. See `LICENSE.md`.
